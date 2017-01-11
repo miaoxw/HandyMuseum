@@ -11,9 +11,9 @@ class MyBLEScanCallback implements BluetoothAdapter.LeScanCallback
 {
 	private static final String UUID_PATTERN="1D22DBEB-76D4-4D8A-9B18-818AAE991A99";
 
-	private Hashtable<Long,String> dest;
+	private Hashtable<String,iBeaconStatus> dest;
 
-	public MyBLEScanCallback(Hashtable<Long,String> dest)
+	public MyBLEScanCallback(Hashtable<String,iBeaconStatus> dest)
 	{
 		this.dest=dest;
 	}
@@ -59,11 +59,10 @@ class MyBLEScanCallback implements BluetoothAdapter.LeScanCallback
 
 			if(UUID.equals(UUID_PATTERN))
 			{
-				String output="major:"+major+" minor:"+minor+" rssi:"+rssi;
-				Log.d("result",output);
+				iBeaconStatus newStatus=new iBeaconStatus(major,minor,rssi);
+				Log.d("result",newStatus.toString());
 
-				long key=(long)(major<<16)+(long)minor;
-				dest.put(key,output);
+				dest.put(device.getAddress(),newStatus);
 			}
 		}
 	}

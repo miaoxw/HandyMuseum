@@ -7,21 +7,21 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.util.Log;
+import android.view.Window;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
 
 public class MainActivity extends Activity
 {
 	private Handler handler;
 	private BluetoothAdapter bluetoothAdapter;
-	private ListView listView;
 
-	private ArrayList<String> scanResults;
-	private ArrayAdapter<String> listDataAdapter;
+	private ArrayList<iBeaconStatus> scanResults;
 
 	private Runnable runnable=new Runnable()
 	{
@@ -32,22 +32,31 @@ public class MainActivity extends Activity
 			{
 				while(true)
 				{
-					Hashtable<Long,String> hashtable=new Hashtable<>();
-					MyBLEScanCallback callback=new MyBLEScanCallback(hashtable);
+					Hashtable<String,iBeaconStatus> hashTable=new Hashtable<>();
+					MyBLEScanCallback callback=new MyBLEScanCallback(hashTable);
 					bluetoothAdapter.startLeScan(callback);
 					Thread.sleep(3000);
 					bluetoothAdapter.stopLeScan(callback);
 					scanResults.clear();
-					scanResults.addAll(hashtable.values());
+					scanResults.addAll(hashTable.values());
+					Collections.sort(scanResults,new Comparator<iBeaconStatus>()
+					{
+						//倒序排列，把信号最强的放在前面
+						@Override
+						public int compare(iBeaconStatus o1,iBeaconStatus o2)
+						{
+							return o2.rssi-o1.rssi;
+						}
+					});
 					handler.post(new Runnable()
 					{
 						@Override
 						public void run()
 						{
-							listDataAdapter.notifyDataSetChanged();
+							Log.d("","refreshed");
 						}
 					});
-					Thread.sleep(2000);
+					Thread.sleep(0);
 				}
 			}
 			catch(InterruptedException e)
@@ -68,11 +77,11 @@ public class MainActivity extends Activity
 		handler=new Handler();
 		currentThread=null;
 		scanResults=new ArrayList<>();
-		listDataAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,scanResults);
+
+		//取消标题栏
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.activity_main);
-		listView=(ListView)findViewById(R.id.listviewMain);
-		listView.setAdapter(listDataAdapter);
 
 		BluetoothManager bluetoothManager=(BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
 		bluetoothAdapter=bluetoothManager.getAdapter();
@@ -89,7 +98,10 @@ public class MainActivity extends Activity
 		super.onResume();
 
 		if(!bluetoothAdapter.isEnabled())
+		{
+			Toast.makeText(this,R.string.BluetoothOnNotification,Toast.LENGTH_LONG);
 			bluetoothAdapter.enable();
+		}
 		currentThread=new Thread(runnable);
 		currentThread.start();
 	}
@@ -106,6 +118,9 @@ public class MainActivity extends Activity
 		}
 
 		if(bluetoothAdapter.isEnabled())
+		{
+			Toast.makeText(this,R.string.BluetoothOffNotification,Toast.LENGTH_LONG);
 			bluetoothAdapter.disable();
+		}
 	}
 }

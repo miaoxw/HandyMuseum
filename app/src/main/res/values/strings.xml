@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HandyMuseum_Mobile</string>
+    <string name="BluetoothOnNotification">"蓝牙已经自动开启"</string>
+    <string name="BluetoothOffNotification">"蓝牙已经自动关闭"</string>
 </resources>
