@@ -11,18 +11,44 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="cn.edu.nju.miaoxw.handymuseum.mobile.MainActivity">
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/description_bg"
+        android:id="@+id/linearLayoutDescription"
+        android:visibility="gone"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewZoneName"
+            android:text="展区标题"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.SearchResult.Title"
+            />
+
+        <TextView
+            android:text="展区描述"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewZoneDescription"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.SearchResult.Subtitle"
+            />
+
+    </LinearLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/frameLayoutMap"
-        android:layout_above="@+id/textViewZoneName">
+        android:layout_above="@id/linearLayoutDescription">
 
         <ImageView
             android:src="@drawable/map_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
             android:id="@+id/imageViewBackground"
             android:scaleType="fitStart"
             android:cropToPadding="false"
@@ -30,33 +56,19 @@
 
         <ImageButton
             android:src="@drawable/position_dot"
-            android:id="@+id/imageButton"
+            android:id="@+id/imageButtonPositionMarker"
             android:focusable="false"
             android:background="#00FFFFFF"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:longClickable="false"
             android:saveEnabled="false"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter"
+            android:cropToPadding="false"
+            android:adjustViewBounds="false"
+            android:visibility="invisible"
+            android:layout_marginLeft="240dp"
+            />
 
     </FrameLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textViewZoneName"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentEnd="false"
-        android:layout_above="@+id/textViewZoneDescription"
-        android:text="展区标题"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.SearchResult.Title"/>
-
-    <TextView
-        android:text="展区描述"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textViewZoneDescription"
-        android:layout_alignParentBottom="true"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.SearchResult.Subtitle"/>
-
 </RelativeLayout>

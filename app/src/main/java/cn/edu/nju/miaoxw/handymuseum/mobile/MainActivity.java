@@ -7,20 +7,28 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
-import android.util.Log;
+import android.view.View;
 import android.view.Window;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
+import java.util.Iterator;
+
+import cn.edu.nju.miaoxw.handymuseum.mobile.utility.DensityHelper;
 
 public class MainActivity extends Activity
 {
 	private Handler handler;
 	private BluetoothAdapter bluetoothAdapter;
 
+	private iBeaconStatus nearestBeacon;
 	private ArrayList<iBeaconStatus> scanResults;
 
 	private Runnable runnable=new Runnable()
@@ -37,7 +45,16 @@ public class MainActivity extends Activity
 					bluetoothAdapter.startLeScan(callback);
 					Thread.sleep(3000);
 					bluetoothAdapter.stopLeScan(callback);
-					scanResults.clear();
+
+					//清理过期元素
+					for(Iterator<iBeaconStatus> it=scanResults.iterator();it.hasNext();)
+					{
+						iBeaconStatus item=it.next();
+						item.age++;
+						if(item.age>=3)
+							it.remove();
+					}
+
 					scanResults.addAll(hashTable.values());
 					Collections.sort(scanResults,new Comparator<iBeaconStatus>()
 					{
@@ -45,18 +62,84 @@ public class MainActivity extends Activity
 						@Override
 						public int compare(iBeaconStatus o1,iBeaconStatus o2)
 						{
-							return o2.rssi-o1.rssi;
+							if(o1.rssi!=o2.rssi)
+								return o2.rssi-o1.rssi;
+							else
+								return o1.age-o2.age;
 						}
 					});
+
+					if(!scanResults.isEmpty())
+					{
+						//所有不过期数据中最可信的那个
+						nearestBeacon=scanResults.get(0);
+					}
+
 					handler.post(new Runnable()
 					{
 						@Override
 						public void run()
 						{
-							Log.d("","refreshed");
+							if(nearestBeacon==null)
+							{
+								imageButtonPositionMarker.setVisibility(View.INVISIBLE);
+								imageButtonPositionMarker.setClickable(false);
+								linearLayoutDescription.setVisibility(View.GONE);
+								return;
+							}
+							if(nearestBeacon.major==0)
+							{
+								FrameLayout.LayoutParams layoutParams=(FrameLayout.LayoutParams)imageButtonPositionMarker.getLayoutParams();
+
+								switch(nearestBeacon.minor)
+								{
+									case 1:
+										layoutParams.setMargins(DensityHelper.dip2px(getApplicationContext(),240),DensityHelper.dip2px(getApplicationContext(),90),0,0);
+										imageButtonPositionMarker.setLayoutParams(layoutParams);
+										imageButtonPositionMarker.setImageDrawable(getResources().getDrawable(R.drawable.position_dot));
+										imageButtonPositionMarker.setVisibility(View.VISIBLE);
+										imageButtonPositionMarker.setClickable(false);
+										textViewZoneName.setText(R.string.zone1_name);
+										textViewZoneDescription.setText(R.string.zone1_description);
+										linearLayoutDescription.setVisibility(View.VISIBLE);
+										break;
+									case 2:
+										layoutParams.setMargins(DensityHelper.dip2px(getApplicationContext(),240),DensityHelper.dip2px(getApplicationContext(),190),0,0);
+										imageButtonPositionMarker.setLayoutParams(layoutParams);
+										imageButtonPositionMarker.setImageDrawable(getResources().getDrawable(R.drawable.bulb));
+										imageButtonPositionMarker.setVisibility(View.VISIBLE);
+										imageButtonPositionMarker.setClickable(true);
+										textViewZoneName.setText(R.string.inter1_name);
+										textViewZoneDescription.setText(R.string.inter1_description);
+										linearLayoutDescription.setVisibility(View.VISIBLE);
+										break;
+									case 3:
+										layoutParams.setMargins(DensityHelper.dip2px(getApplicationContext(),240),DensityHelper.dip2px(getApplicationContext(),320),0,0);
+										imageButtonPositionMarker.setLayoutParams(layoutParams);
+										imageButtonPositionMarker.setImageDrawable(getResources().getDrawable(R.drawable.position_dot));
+										imageButtonPositionMarker.setVisibility(View.VISIBLE);
+										imageButtonPositionMarker.setClickable(false);
+										textViewZoneName.setText(R.string.zone2_name);
+										textViewZoneDescription.setText(R.string.zone2_description);
+										linearLayoutDescription.setVisibility(View.VISIBLE);
+										break;
+									default:
+										imageButtonPositionMarker.setVisibility(View.INVISIBLE);
+										imageButtonPositionMarker.setClickable(false);
+										linearLayoutDescription.setVisibility(View.GONE);
+										break;
+								}
+							}
+							else
+							{
+								imageButtonPositionMarker.setVisibility(View.INVISIBLE);
+								imageButtonPositionMarker.setClickable(false);
+								textViewZoneName.setVisibility(View.GONE);
+								textViewZoneDescription.setVisibility(View.GONE);
+							}
 						}
 					});
-					Thread.sleep(0);
+					Thread.sleep(1000);
 				}
 			}
 			catch(InterruptedException e)
@@ -68,6 +151,10 @@ public class MainActivity extends Activity
 
 	private Thread currentThread;
 
+	private LinearLayout linearLayoutDescription;
+	private ImageButton imageButtonPositionMarker;
+	private TextView textViewZoneName;
+	private TextView textViewZoneDescription;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -77,17 +164,33 @@ public class MainActivity extends Activity
 		handler=new Handler();
 		currentThread=null;
 		scanResults=new ArrayList<>();
+		nearestBeacon=null;
 
 		//取消标题栏
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		setContentView(R.layout.activity_main);
 
+		linearLayoutDescription=(LinearLayout)findViewById(R.id.linearLayoutDescription);
+		imageButtonPositionMarker=(ImageButton)findViewById(R.id.imageButtonPositionMarker);
+		textViewZoneName=(TextView)findViewById(R.id.textViewZoneName);
+		textViewZoneDescription=(TextView)findViewById(R.id.textViewZoneDescription);
+
+		imageButtonPositionMarker.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				//TODO 跳转进新的Activity
+				Toast.makeText(MainActivity.this,"clicked!",Toast.LENGTH_SHORT).show();
+			}
+		});
+
 		BluetoothManager bluetoothManager=(BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
 		bluetoothAdapter=bluetoothManager.getAdapter();
 		if(bluetoothAdapter==null)
 		{
-			Toast.makeText(this,"Bluetooth not supported!",Toast.LENGTH_LONG);
+			Toast.makeText(this,"Bluetooth not supported!",Toast.LENGTH_LONG).show();
 			Process.killProcess(Process.myPid());
 		}
 	}
@@ -99,7 +202,7 @@ public class MainActivity extends Activity
 
 		if(!bluetoothAdapter.isEnabled())
 		{
-			Toast.makeText(this,R.string.BluetoothOnNotification,Toast.LENGTH_LONG);
+			Toast.makeText(this,R.string.BluetoothOnNotification,Toast.LENGTH_LONG).show();
 			bluetoothAdapter.enable();
 		}
 		currentThread=new Thread(runnable);
@@ -119,7 +222,7 @@ public class MainActivity extends Activity
 
 		if(bluetoothAdapter.isEnabled())
 		{
-			Toast.makeText(this,R.string.BluetoothOffNotification,Toast.LENGTH_LONG);
+			Toast.makeText(this,R.string.BluetoothOffNotification,Toast.LENGTH_LONG).show();
 			bluetoothAdapter.disable();
 		}
 	}

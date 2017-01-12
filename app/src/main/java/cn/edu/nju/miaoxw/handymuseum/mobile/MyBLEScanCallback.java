@@ -2,9 +2,10 @@ package cn.edu.nju.miaoxw.handymuseum.mobile;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 
 import java.util.Hashtable;
+
+import cn.edu.nju.miaoxw.handymuseum.mobile.utility.BLEHelper;
 
 
 class MyBLEScanCallback implements BluetoothAdapter.LeScanCallback
@@ -60,8 +61,6 @@ class MyBLEScanCallback implements BluetoothAdapter.LeScanCallback
 			if(UUID.equals(UUID_PATTERN))
 			{
 				iBeaconStatus newStatus=new iBeaconStatus(major,minor,rssi);
-				Log.d("result",newStatus.toString());
-
 				dest.put(device.getAddress(),newStatus);
 			}
 		}

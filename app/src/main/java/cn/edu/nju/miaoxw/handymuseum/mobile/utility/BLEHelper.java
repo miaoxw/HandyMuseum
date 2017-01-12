@@ -1,4 +1,4 @@
-package cn.edu.nju.miaoxw.handymuseum.mobile;
+package cn.edu.nju.miaoxw.handymuseum.mobile.utility;
 
 public class BLEHelper
 {

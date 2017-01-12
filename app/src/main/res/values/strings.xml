@@ -1,5 +1,11 @@
 <resources>
-    <string name="app_name">HandyMuseum_Mobile</string>
+    <string name="app_name">MuseumAdvisor_Demo</string>
     <string name="BluetoothOnNotification">"蓝牙已经自动开启"</string>
     <string name="BluetoothOffNotification">"蓝牙已经自动关闭"</string>
+    <string name="zone1_name">展板1</string>
+    <string name="zone1_description">　　展板1展示了*****的内容。</string>
+    <string name="zone2_name">展板2</string>
+    <string name="zone2_description">　　展板2展示了×××××的内容。</string>
+    <string name="inter1_name">交互展板</string>
+    <string name="inter1_description">　　交互展板展示了？？？？的内容。在这里您也许可以探索！！！！的答案。\n　　点击地图中的任务图标可以在交互展板上尝试完成任务。</string>
 </resources>
