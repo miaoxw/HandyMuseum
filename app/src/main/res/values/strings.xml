@@ -8,4 +8,5 @@
     <string name="zone2_description">　　展板2展示了×××××的内容。</string>
     <string name="inter1_name">交互展板</string>
     <string name="inter1_description">　　交互展板展示了？？？？的内容。在这里您也许可以探索！！！！的答案。\n　　点击地图中的任务图标可以在交互展板上尝试完成任务。</string>
+    <string name="title_activity_mission">问题回答</string>
 </resources>

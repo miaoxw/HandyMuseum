@@ -1,6 +1,8 @@
 package cn.edu.nju.miaoxw.handymuseum.mobile;
 
-public class iBeaconStatus
+import java.io.Serializable;
+
+public class iBeaconStatus implements Serializable
 {
 	public int major;
 	public int minor;

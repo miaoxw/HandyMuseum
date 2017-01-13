@@ -1,9 +1,12 @@
 package cn.edu.nju.miaoxw.handymuseum.mobile;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
@@ -181,8 +184,18 @@ public class MainActivity extends Activity
 			@Override
 			public void onClick(View v)
 			{
-				//TODO 跳转进新的Activity
-				Toast.makeText(MainActivity.this,"clicked!",Toast.LENGTH_SHORT).show();
+				iBeaconStatus currentBeacon=nearestBeacon;
+
+				//Demo用，因为仅一个交互展台
+				if(currentBeacon.major!=0||currentBeacon.minor!=2)
+				{
+					Bundle bundleToSend=new Bundle();
+					bundleToSend.putSerializable("place",currentBeacon);
+
+					Intent intent=new Intent(MainActivity.this,MissionActivity.class);
+					intent.putExtras(bundleToSend);
+					startActivityForResult(intent,0);
+				}
 			}
 		});
 
@@ -224,6 +237,37 @@ public class MainActivity extends Activity
 		{
 			Toast.makeText(this,R.string.BluetoothOffNotification,Toast.LENGTH_LONG).show();
 			bluetoothAdapter.disable();
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode,int resultCode,Intent data)
+	{
+		if(resultCode==Activity.RESULT_OK)
+		{
+			if(requestCode==0)
+			{
+				boolean result=data.getBooleanExtra("result",false);
+				AlertDialog.Builder builder=new AlertDialog.Builder(this);
+				builder.setTitle("提示");
+				builder.setPositiveButton("确定",new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog,int which)
+					{
+						dialog.dismiss();
+					}
+				});
+				if(result)
+					builder.setMessage("回答正确！");
+				else
+					builder.setMessage("回答错误。");
+				builder.create().show();
+			}
+		}
+		else
+		{
+			Toast.makeText(this,"回答取消。",Toast.LENGTH_LONG).show();
 		}
 	}
 }
