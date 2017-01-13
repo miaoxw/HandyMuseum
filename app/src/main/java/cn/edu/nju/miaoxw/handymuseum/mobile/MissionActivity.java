@@ -48,7 +48,7 @@ public class MissionActivity extends Activity
 		textViewProblemDescription=(TextView)findViewById(R.id.textViewProblemDescription);
 		buttonConnect=(Button)findViewById(R.id.buttonConnect);
 
-		currentBeacon=(iBeaconStatus)savedInstanceState.get("place");
+		currentBeacon=(iBeaconStatus)getIntent().getExtras().getSerializable("place");
 		if(currentBeacon==null)
 		{
 			setResult(Activity.RESULT_CANCELED);
@@ -60,21 +60,31 @@ public class MissionActivity extends Activity
 			@Override
 			public void onClick(View v)
 			{
-				final Socket socket;
-				try
-				{
-					socket=new Socket("192.168.0.3",22222);
-				}catch(IOException e)
-				{
-					Toast.makeText(MissionActivity.this,"与交互展板连接失败！",Toast.LENGTH_LONG).show();
-					return;
-				}
-
 				new Thread(new Runnable()
 				{
+					Socket socket;
+
 					@Override
 					public void run()
 					{
+						try
+						{
+							socket=new Socket("192.168.0.3",22222);
+						}
+						catch(IOException e)
+						{
+							e.printStackTrace();
+							handler.post(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									Toast.makeText(MissionActivity.this,"与交互展板连接失败！",Toast.LENGTH_LONG).show();
+								}
+							});
+							return;
+						}
+
 						handler.post(new Runnable()
 						{
 							@Override
@@ -86,11 +96,13 @@ public class MissionActivity extends Activity
 
 						ObjectInputStream objectInputStream=null;
 						boolean result=false;
+
 						try
 						{
 							objectInputStream=new ObjectInputStream(socket.getInputStream());
 							result=(Boolean)objectInputStream.readObject();
-						}catch(IOException|ClassNotFoundException e)
+						}
+						catch(IOException|ClassNotFoundException e)
 						{
 							handler.post(new Runnable()
 							{
@@ -109,16 +121,27 @@ public class MissionActivity extends Activity
 								try
 								{
 									objectInputStream.close();
-								}catch(IOException e)
+								}
+								catch(IOException e)
 								{
 								}
 							try
 							{
 								socket.close();
-							}catch(IOException e)
+							}
+							catch(IOException e)
 							{
 							}
 						}
+
+						handler.post(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								progressDialog.dismiss();
+							}
+						});
 
 						Intent intent=new Intent();
 						intent.putExtra("result",result);

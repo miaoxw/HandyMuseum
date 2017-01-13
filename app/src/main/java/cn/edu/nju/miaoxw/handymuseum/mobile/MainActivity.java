@@ -187,7 +187,7 @@ public class MainActivity extends Activity
 				iBeaconStatus currentBeacon=nearestBeacon;
 
 				//Demo用，因为仅一个交互展台
-				if(currentBeacon.major!=0||currentBeacon.minor!=2)
+				if(currentBeacon.major==0&&currentBeacon.minor==2)
 				{
 					Bundle bundleToSend=new Bundle();
 					bundleToSend.putSerializable("place",currentBeacon);
