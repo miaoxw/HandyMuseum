@@ -20,7 +20,7 @@
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"/>
 
     <TextView
-        android:text="问题描述\n会有填空"
+        android:text="南京大学的源头之一是三江师范学堂，那么三江师范学堂创立于哪一年呢？"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textViewProblemDescription"

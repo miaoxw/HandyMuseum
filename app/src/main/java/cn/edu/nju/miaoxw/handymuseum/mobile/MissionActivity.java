@@ -69,7 +69,7 @@ public class MissionActivity extends Activity
 					{
 						try
 						{
-							socket=new Socket("192.168.0.198",22222);
+							socket=new Socket("192.168.75.85",22222);
 						}
 						catch(IOException e)
 						{
